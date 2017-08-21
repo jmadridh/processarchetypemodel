@@ -7,8 +7,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <choice doc:name="All systems?">
             <when expression="">
                 <scatter-gather timeout="${scatter.timeout}" doc:name="Scatter-Gather">
-                    <flow-ref name="businessoperationSFDC" doc:name="businessoperationSFDC"/>
-                    <flow-ref name="businessoperationToAnotherSystem" doc:name="businessoperationToAnotherSystem"/>
+                    <flow-ref name="businessoperationToSystemA" doc:name="businessoperationToSystemA"/>
+                    <flow-ref name="businessoperationToSystemB" doc:name="businessoperationToSystemB"/>
                 </scatter-gather>
             </when>
             <otherwise>
@@ -19,13 +19,14 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     <sub-flow name="proxysystem">
         <choice doc:name="System Orchestration">
             <when expression="">
-                <flow-ref name="businessoperationSFDC" doc:name="businessoperationSFDC"/>
+                <flow-ref name="businessoperationToSystemA" doc:name="businessoperationToSystemA"/>
             </when>
             <when expression="">
-                <flow-ref name="businessoperationToAnotherSystem" doc:name="businessoperationToAnotherSystem"/>
+                <flow-ref name="businessoperationToSystemB" doc:name="businessoperationToSystemB"/>
             </when>
             <otherwise>
                 <logger message="#[message]" level="INFO" doc:name="Logger"/>
+                <flow-ref name="businessoperationSFDC" doc:name="businessoperationSFDC"/>
             </otherwise>
         </choice>
     </sub-flow>
@@ -44,8 +45,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
             </otherwise>
         </choice>
     </sub-flow>
-    <!-- Business Operation Flow to another system -->
-    <sub-flow name="businessoperationToAnotherSystem">
+    <!-- Business Operation Flow to system A -->
+    <sub-flow name="businessoperationToSystemA">
         <choice doc:name="Operation Orchestration Other">
             <when expression="">
                 <flow-ref name="removeObject" doc:name="removeObject"/>
@@ -59,6 +60,20 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         </choice>
     </sub-flow>
     
+    <!-- Business Operation Flow to system B -->
+    <sub-flow name="businessoperationToSystemB">
+        <choice doc:name="Operation Orchestration Other">
+            <when expression="">
+                <flow-ref name="removeObject" doc:name="removeObject"/>
+            </when>
+            <when expression="">
+                <flow-ref name="updateObject" doc:name="updateObject"/>
+            </when>
+            <otherwise>
+                <flow-ref name="setObject" doc:name="setObject"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
     
     <sub-flow name="setObject">
         <ws:consumer config-ref="Web_Service_Consumer" doc:name="Web Service Consumer"/>
