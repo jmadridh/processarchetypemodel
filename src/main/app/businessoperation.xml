@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <sub-flow name="solvetargetsystem">
+        <choice doc:name="All systems?">
+            <when expression="">
+                <scatter-gather timeout="${scatter.timeout}" doc:name="Scatter-Gather">
+                    <flow-ref name="businessoperationSFDC" doc:name="businessoperationSFDC"/>
+                    <flow-ref name="businessoperationToAnotherSystem" doc:name="businessoperationToAnotherSystem"/>
+                </scatter-gather>
+            </when>
+            <otherwise>
+                <flow-ref name="proxysystem" doc:name="proxysystem"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+    <sub-flow name="proxysystem">
+        <choice doc:name="System Orchestration">
+            <when expression="">
+                <flow-ref name="businessoperationSFDC" doc:name="businessoperationSFDC"/>
+            </when>
+            <when expression="">
+                <flow-ref name="businessoperationToAnotherSystem" doc:name="businessoperationToAnotherSystem"/>
+            </when>
+            <otherwise>
+                <logger message="#[message]" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+    
+    <!-- Business Operation Flow to Salesforce -->
+    <sub-flow name="businessoperationSFDC">
+        <choice doc:name="Operation Orchestration SFDC">
+            <when expression="">
+                <flow-ref name="removeObject" doc:name="removeObject"/>
+            </when>
+            <when expression="">
+                <flow-ref name="updateObject" doc:name="updateObject"/>
+            </when>
+            <otherwise>
+                <flow-ref name="setObject" doc:name="setObject"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+    <!-- Business Operation Flow to another system -->
+    <sub-flow name="businessoperationToAnotherSystem">
+        <choice doc:name="Operation Orchestration Other">
+            <when expression="">
+                <flow-ref name="removeObject" doc:name="removeObject"/>
+            </when>
+            <when expression="">
+                <flow-ref name="updateObject" doc:name="updateObject"/>
+            </when>
+            <otherwise>
+                <flow-ref name="setObject" doc:name="setObject"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+    
+    
+    <sub-flow name="setObject">
+        <ws:consumer config-ref="Web_Service_Consumer" doc:name="Web Service Consumer"/>
+    </sub-flow>
+    <sub-flow name="updateObject">
+        <ws:consumer config-ref="Web_Service_Consumer" doc:name="Web Service Consumer"/>
+    </sub-flow>
+    <sub-flow name="removeObject">
+        <ws:consumer config-ref="Web_Service_Consumer" doc:name="Web Service Consumer"/>
+    </sub-flow>
+</mule>
